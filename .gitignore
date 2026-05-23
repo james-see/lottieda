@@ -1,6 +1,7 @@
 node_modules
 dist
 dist-docs
+docs/.astro
 src-tauri/target
 .DS_Store
 *.log

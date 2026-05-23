@@ -1,0 +1,36 @@
+{
+  "name": "lottieda",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "docs:build": "astro build --root docs",
+    "docs:dev": "astro dev --root docs",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "latest",
+    "@tauri-apps/api": "latest",
+    "lottie-web": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "svgpath": "latest",
+    "tailwindcss": "latest",
+    "zustand": "latest"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@vitejs/plugin-react": "latest",
+    "astro": "^6.3.7",
+    "typescript": "latest",
+    "vite": "latest"
+  }
+}

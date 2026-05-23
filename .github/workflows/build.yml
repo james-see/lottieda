@@ -1,0 +1,32 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  pull_request:
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - run: npm ci
+      - run: npm run build
+      - run: cargo check --manifest-path src-tauri/Cargo.toml
+      - name: Build Tauri bundle
+        run: npm run tauri:build
+        env:
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LottieDa-macOS-dmg
+          path: src-tauri/target/release/bundle/dmg/*.dmg

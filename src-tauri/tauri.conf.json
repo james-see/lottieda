@@ -1,0 +1,38 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "LottieDa",
+  "version": "0.1.0",
+  "identifier": "com.lottieda.desktop",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "LottieDa",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 1280,
+        "minHeight": 800,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["dmg"],
+    "icon": [],
+    "macOS": {
+      "signingIdentity": null,
+      "hardenedRuntime": true,
+      "entitlements": null
+    },
+    "resources": []
+  }
+}

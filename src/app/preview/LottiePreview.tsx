@@ -8,7 +8,6 @@ export function LottiePreview() {
   const playerRef = useRef<AnimationItem | null>(null);
   const animation = useEditorStore((state) => state.animation);
   const playhead = useEditorStore((state) => state.playhead);
-  const isPlaying = useEditorStore((state) => state.isPlaying);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -21,18 +20,15 @@ export function LottiePreview() {
       autoplay: false,
       animationData: animation,
     });
+    playerRef.current.goToAndStop(useEditorStore.getState().playhead, true);
     return () => playerRef.current?.destroy();
   }, [animation]);
 
   useEffect(() => {
     const player = playerRef.current;
     if (!player) return;
-    if (isPlaying) player.play();
-    else {
-      player.pause();
-      player.goToAndStop(playhead, true);
-    }
-  }, [isPlaying, playhead]);
+    player.goToAndStop(playhead, true);
+  }, [playhead]);
 
   return (
     <section className="flex h-48 flex-col border-t border-zinc-800 bg-zinc-950">

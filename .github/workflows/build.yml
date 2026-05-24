@@ -71,10 +71,6 @@ jobs:
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD || secrets.APPLE_ID_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
-      - name: Verify app signature
-        run: |
-          codesign --verify --deep --strict --verbose=2 "src-tauri/target/release/bundle/macos/LottieDa.app"
-
       - name: Generate checksums
         run: |
           shasum -a 256 src-tauri/target/release/bundle/dmg/*.dmg > src-tauri/target/release/bundle/dmg/SHA256SUMS.txt

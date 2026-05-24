@@ -17,7 +17,7 @@ export function LayerPanel() {
   const reorderLayer = useEditorStore((state) => state.reorderLayer);
 
   return (
-    <aside className="flex w-[220px] flex-col border-r border-zinc-800 bg-zinc-950">
+    <aside className="flex min-h-0 w-[220px] flex-1 flex-col border-r border-zinc-800 bg-zinc-950">
       <div className="border-b border-zinc-800 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">Layers</div>
       <div className="min-h-0 flex-1 overflow-y-auto">
         {layers.length === 0 ? (

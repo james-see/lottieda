@@ -3,6 +3,7 @@ import { EditorCanvas } from "./app/editor/EditorCanvas";
 import { LayerPanel } from "./app/layers/LayerPanel";
 import { LottiePreview } from "./app/preview/LottiePreview";
 import { PropertyInspector } from "./app/properties/PropertyInspector";
+import { ShelfPanel } from "./app/shelf/ShelfPanel";
 import { useEditorStore } from "./app/store/editorStore";
 import { Timeline } from "./app/timeline/Timeline";
 import { Toolbar } from "./app/toolbar/Toolbar";
@@ -32,7 +33,8 @@ export function App() {
     <div className="flex h-full flex-col bg-zinc-950 text-zinc-100">
       <Toolbar />
       <main className="grid min-h-0 flex-1 grid-cols-[220px_minmax(0,1fr)_300px] grid-rows-[minmax(0,1fr)_190px]">
-        <div className="row-span-2">
+        <div className="row-span-2 flex min-h-0 flex-col">
+          <ShelfPanel />
           <LayerPanel />
         </div>
         <div className="min-h-0">

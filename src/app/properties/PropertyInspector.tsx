@@ -9,6 +9,8 @@ export function PropertyInspector() {
   const playhead = useEditorStore((state) => state.playhead);
   const updateSelectedOpacity = useEditorStore((state) => state.updateSelectedOpacity);
   const updateSelectedPosition = useEditorStore((state) => state.updateSelectedPosition);
+  const updateSelectedRotation = useEditorStore((state) => state.updateSelectedRotation);
+  const updateSelectedScale = useEditorStore((state) => state.updateSelectedScale);
   const updateSelectedStyle = useEditorStore((state) => state.updateSelectedStyle);
   const [keyframe, setKeyframe] = useState(false);
   const layer = useMemo(() => animation.layers.find((item) => item.ind === selectedLayerId), [animation.layers, selectedLayerId]);
@@ -22,6 +24,8 @@ export function PropertyInspector() {
   }
 
   const position = sampleProperty(layer.ks.p, playhead);
+  const rotation = sampleProperty(layer.ks.r, playhead);
+  const scale = sampleProperty(layer.ks.s, playhead);
   const opacity = sampleProperty(layer.ks.o, playhead);
   const shapeLayer = layer.ty === 4 ? layer : null;
   const style = shapeLayer ? readShapeStyle(shapeLayer, playhead) : null;
@@ -41,6 +45,8 @@ export function PropertyInspector() {
         <section className="space-y-3">
           <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Transform</h2>
           <Vec2Field label="Position" onChange={(value) => updateSelectedPosition(value, keyframe)} value={position} />
+          <Vec2Field label="Scale" onChange={(value) => updateSelectedScale(value, keyframe)} value={scale} />
+          <NumberField label="Rotation" onChange={(value) => updateSelectedRotation(value, keyframe)} value={rotation} />
           <NumberField label="Opacity" max={100} min={0} onChange={(value) => updateSelectedOpacity(value, keyframe)} value={opacity} />
         </section>
 

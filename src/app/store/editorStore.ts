@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { createDefaultAnimation, createEllipse, createFill, createPath, createRect, createShapeLayer, createStroke, setStatic } from "../../engine/builder";
-import { withKeyframe } from "../../engine/keyframes";
+import { sampleProperty, withKeyframe } from "../../engine/keyframes";
 import type { LottieAnimation, LottieLayer, LottiePath, Rgba, ShapeLayer, Vec2 } from "../../engine/schema";
 
 export type Tool = "select" | "rect" | "ellipse" | "path" | "text";
@@ -24,6 +24,9 @@ interface EditorState {
   moveSelectedLayer: (delta: Vec2) => void;
   updateSelectedOpacity: (opacity: number, keyframe: boolean) => void;
   updateSelectedPosition: (position: Vec2, keyframe: boolean) => void;
+  updateSelectedRotation: (rotation: number, keyframe: boolean) => void;
+  updateSelectedScale: (scale: Vec2, keyframe: boolean) => void;
+  keyframeSelectedTransform: (property: "position" | "scale" | "rotation" | "opacity", frame?: number) => void;
   updateSelectedStyle: (style: Partial<{ fill: Rgba; stroke: Rgba; strokeWidth: number }>) => void;
   toggleLayerHidden: (id: number) => void;
   reorderLayer: (id: number, direction: -1 | 1) => void;
@@ -47,6 +50,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       return {
         animation: { ...state.animation, layers: [...nextLayers, ...state.animation.layers] },
         selectedLayerId: nextLayers[0]?.ind ?? state.selectedLayerId,
+        tool: "select",
         dirty: true,
       };
     }),
@@ -73,6 +77,30 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   updateSelectedPosition: (position, keyframe) =>
     set((state) => updateSelectedLayer(state, (layer) => {
       layer.ks.p = keyframe ? withKeyframe(layer.ks.p, state.playhead, position, "ease-in-out") : setStatic(layer.ks.p, position);
+    })),
+  updateSelectedRotation: (rotation, keyframe) =>
+    set((state) => updateSelectedLayer(state, (layer) => {
+      layer.ks.r = keyframe ? withKeyframe(layer.ks.r, state.playhead, rotation, "ease-in-out") : setStatic(layer.ks.r, rotation);
+    })),
+  updateSelectedScale: (scale, keyframe) =>
+    set((state) => updateSelectedLayer(state, (layer) => {
+      layer.ks.s = keyframe ? withKeyframe(layer.ks.s, state.playhead, scale, "ease-in-out") : setStatic(layer.ks.s, scale);
+    })),
+  keyframeSelectedTransform: (property, frame) =>
+    set((state) => updateSelectedLayer(state, (layer) => {
+      const targetFrame = frame ?? state.playhead;
+      if (property === "position") {
+        layer.ks.p = withKeyframe(layer.ks.p, targetFrame, sampleProperty(layer.ks.p, state.playhead), "ease-in-out");
+      }
+      if (property === "scale") {
+        layer.ks.s = withKeyframe(layer.ks.s, targetFrame, sampleProperty(layer.ks.s, state.playhead), "ease-in-out");
+      }
+      if (property === "rotation") {
+        layer.ks.r = withKeyframe(layer.ks.r, targetFrame, sampleProperty(layer.ks.r, state.playhead), "ease-in-out");
+      }
+      if (property === "opacity") {
+        layer.ks.o = withKeyframe(layer.ks.o, targetFrame, sampleProperty(layer.ks.o, state.playhead), "ease-in-out");
+      }
     })),
   updateSelectedStyle: (style) =>
     set((state) => updateSelectedLayer(state, (layer) => {

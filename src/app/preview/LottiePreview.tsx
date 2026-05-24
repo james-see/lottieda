@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
-import lottie, { type AnimationItem } from "lottie-web";
+import type { AnimationItem } from "lottie-web";
+import lottie from "lottie-web/build/player/lottie_light";
 import { useEditorStore } from "../store/editorStore";
 
 export function LottiePreview() {
@@ -37,7 +38,7 @@ export function LottiePreview() {
     <section className="flex h-48 flex-col border-t border-zinc-800 bg-zinc-950">
       <div className="flex items-center justify-between border-b border-zinc-800 px-3 py-2 text-xs text-zinc-400">
         <span>Preview Renderer</span>
-        <span className="font-mono">lottie-web svg</span>
+        <span className="font-mono">lottie-web light svg</span>
       </div>
       <div ref={containerRef} className="min-h-0 flex-1" />
     </section>

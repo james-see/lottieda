@@ -11,6 +11,7 @@ export function Timeline() {
   const playhead = useEditorStore((state) => state.playhead);
   const selectedLayerId = useEditorStore((state) => state.selectedLayerId);
   const setPlayhead = useEditorStore((state) => state.setPlayhead);
+  const keyframeSelectedTransform = useEditorStore((state) => state.keyframeSelectedTransform);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -27,11 +28,20 @@ export function Timeline() {
   const handlePointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
     const x = event.clientX - rect.left + event.currentTarget.parentElement!.scrollLeft;
-    setPlayhead(Math.round((x - 160) / frameWidth));
+    const y = event.clientY - rect.top + event.currentTarget.parentElement!.scrollTop;
+    const frame = Math.round((x - 160) / frameWidth);
+    const rowIndex = Math.floor((y - headerHeight) / rowHeight);
+    const layer = animation.layers[rowIndex];
+    setPlayhead(frame);
+    if (layer?.ind === selectedLayerId) keyframeSelectedTransform("position", frame);
   };
 
   return (
-    <section className="h-[190px] border-t border-zinc-800 bg-zinc-950">
+    <section className="relative h-[190px] border-t border-zinc-800 bg-zinc-950">
+      <div className="pointer-events-none absolute right-3 top-2 z-10 rounded bg-zinc-950/85 px-2 py-1 text-[10px] text-zinc-400">
+        Position <span className="text-orange-400">◆</span> Opacity <span className="text-sky-400">◆</span> Rotation <span className="text-purple-400">◆</span> Scale <span className="text-emerald-400">◆</span>
+        <span className="ml-2 text-zinc-500">Click selected row to keyframe position</span>
+      </div>
       <div className="h-full overflow-auto">
         <canvas ref={canvasRef} onPointerDown={handlePointerDown} />
       </div>
@@ -77,8 +87,10 @@ function drawTimeline(
     ctx.fillRect(0, y, width, rowHeight);
     ctx.fillStyle = "#d4d4d8";
     ctx.fillText(layer.nm, 10, y + 16);
-    drawKeyframes(ctx, layer.ks.p.a === 1 ? layer.ks.p.k.map((item) => item.t) : [], y, "#f97316");
-    drawKeyframes(ctx, layer.ks.o.a === 1 ? layer.ks.o.k.map((item) => item.t) : [], y, "#38bdf8");
+    drawKeyframes(ctx, layer.ks.p.a === 1 ? layer.ks.p.k.map((item) => item.t) : [], y, "#f97316", -6);
+    drawKeyframes(ctx, layer.ks.o.a === 1 ? layer.ks.o.k.map((item) => item.t) : [], y, "#38bdf8", -2);
+    drawKeyframes(ctx, layer.ks.r.a === 1 ? layer.ks.r.k.map((item) => item.t) : [], y, "#c084fc", 2);
+    drawKeyframes(ctx, layer.ks.s.a === 1 ? layer.ks.s.k.map((item) => item.t) : [], y, "#34d399", 6);
   });
 
   const playheadX = 160 + playhead * frameWidth;
@@ -90,15 +102,16 @@ function drawTimeline(
   ctx.stroke();
 }
 
-function drawKeyframes(ctx: CanvasRenderingContext2D, frames: number[], y: number, color: string): void {
+function drawKeyframes(ctx: CanvasRenderingContext2D, frames: number[], y: number, color: string, offsetY: number): void {
   ctx.fillStyle = color;
   for (const frame of frames) {
     const x = 160 + frame * frameWidth;
+    const centerY = y + rowHeight / 2 + offsetY;
     ctx.beginPath();
-    ctx.moveTo(x, y + rowHeight / 2 - 5);
-    ctx.lineTo(x + 5, y + rowHeight / 2);
-    ctx.lineTo(x, y + rowHeight / 2 + 5);
-    ctx.lineTo(x - 5, y + rowHeight / 2);
+    ctx.moveTo(x, centerY - 3);
+    ctx.lineTo(x + 3, centerY);
+    ctx.lineTo(x, centerY + 3);
+    ctx.lineTo(x - 3, centerY);
     ctx.closePath();
     ctx.fill();
   }

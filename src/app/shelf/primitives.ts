@@ -16,7 +16,7 @@ export const primitivePresets: PrimitivePreset[] = [
     id: "isometric-cube",
     name: "Cube",
     glyph: "Cube",
-    description: "Three animated isometric faces with a 10-frame shimmer.",
+    description: "Three animated isometric faces with a timed shimmer.",
     createLayers: createIsometricCube,
   },
   {
@@ -44,6 +44,7 @@ export const primitivePresets: PrimitivePreset[] = [
 
 function createIsometricCube(animation: LottieAnimation): ShapeLayer[] {
   const center: Vec2 = [animation.w / 2, animation.h / 2];
+  const step = sampleFrameStep(animation, 10);
   const transforms = {
     s: keyframeRange(0, [
       [100, 100],
@@ -56,8 +57,8 @@ function createIsometricCube(animation: LottieAnimation): ShapeLayer[] {
       [97, 103],
       [98, 102],
       [100, 100],
-    ] as Vec2[]),
-    r: scalarKeyframeRange(0, [-4, -3, -1, 1, 3, 4, 3, 1, -2, -4]),
+    ] as Vec2[], step),
+    r: scalarKeyframeRange(0, [-4, -3, -1, 1, 3, 4, 3, 1, -2, -4], step),
   };
 
   const top = polygon([
@@ -88,6 +89,7 @@ function createIsometricCube(animation: LottieAnimation): ShapeLayer[] {
 
 function createBouncingBall(animation: LottieAnimation): ShapeLayer[] {
   const center: Vec2 = [animation.w / 2, animation.h / 2];
+  const step = sampleFrameStep(animation, 10);
   const layer = baseLayer("Bouncing Ball", animation, center);
   layer.shapes = [createEllipse([0, 0], [96, 96], "Ball"), createFill([0.18, 0.62, 0.95, 1]), createStroke([1, 1, 1, 0.9], 3)];
   layer.ks.p = keyframeRange(0, [
@@ -101,7 +103,7 @@ function createBouncingBall(animation: LottieAnimation): ShapeLayer[] {
     [center[0] + 46, center[1] + 8],
     [center[0] + 64, center[1] - 42],
     [center[0] + 82, center[1] - 58],
-  ]);
+  ], step);
   layer.ks.s = keyframeRange(0, [
     [100, 100],
     [98, 104],
@@ -113,7 +115,7 @@ function createBouncingBall(animation: LottieAnimation): ShapeLayer[] {
     [104, 96],
     [97, 105],
     [100, 100],
-  ] as Vec2[]);
+  ] as Vec2[], step);
   return [layer];
 }
 
@@ -121,6 +123,7 @@ function createPathRunner(animation: LottieAnimation): ShapeLayer[] {
   const center: Vec2 = [animation.w / 2, animation.h / 2];
   const pathD = `M ${center[0] - 150} ${center[1] + 56} C ${center[0] - 88} ${center[1] - 110}, ${center[0] + 82} ${center[1] + 122}, ${center[0] + 152} ${center[1] - 46}`;
   const points = sampleSvgPath(pathD, 10);
+  const step = sampleFrameStep(animation, points.length, 2.5);
   const layer = baseLayer("Path Runner", animation, points[0]);
   layer.shapes = [
     createPath(polygon([
@@ -132,13 +135,14 @@ function createPathRunner(animation: LottieAnimation): ShapeLayer[] {
     createFill([0.32, 0.9, 0.55, 1]),
     createStroke([0.05, 0.1, 0.08, 1], 2),
   ];
-  layer.ks.p = keyframeRange(0, points);
-  layer.ks.r = rotationKeyframesAlongPoints(points, 0);
+  layer.ks.p = keyframeRange(0, points, step);
+  layer.ks.r = rotationKeyframesAlongPoints(points, 0, 0, step);
   return [layer];
 }
 
 function createPulseDiamond(animation: LottieAnimation): ShapeLayer[] {
   const center: Vec2 = [animation.w / 2, animation.h / 2];
+  const step = sampleFrameStep(animation, 10);
   const layer = baseLayer("Pulse Diamond", animation, center);
   layer.shapes = [
     createPath(polygon([
@@ -161,9 +165,9 @@ function createPulseDiamond(animation: LottieAnimation): ShapeLayer[] {
     [94, 94],
     [104, 104],
     [82, 82],
-  ] as Vec2[]);
-  layer.ks.r = scalarKeyframeRange(0, [0, 8, 16, 24, 32, 40, 48, 56, 64, 72]);
-  layer.ks.o = scalarKeyframeRange(0, [55, 70, 88, 100, 82, 68, 54, 72, 90, 55]);
+  ] as Vec2[], step);
+  layer.ks.r = scalarKeyframeRange(0, [0, 8, 16, 24, 32, 40, 48, 56, 64, 72], step);
+  layer.ks.o = scalarKeyframeRange(0, [55, 70, 88, 100, 82, 68, 54, 72, 90, 55], step);
   return [layer];
 }
 
@@ -192,6 +196,12 @@ function baseLayer(name: string, animation: LottieAnimation, position: Vec2): Sh
   });
   layer.ks.p = value(position);
   return layer;
+}
+
+function sampleFrameStep(animation: LottieAnimation, keyframeCount: number, seconds = 2): number {
+  const availableFrames = Math.max(1, animation.op - animation.ip - 1);
+  const targetFrames = Math.min(availableFrames, Math.round(animation.fr * seconds));
+  return Math.max(1, Math.round(targetFrames / Math.max(1, keyframeCount - 1)));
 }
 
 function polygon(points: Vec2[]): LottiePath {

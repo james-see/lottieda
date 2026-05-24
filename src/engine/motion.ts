@@ -13,12 +13,12 @@ export function makeKeyframes<T>(frames: Array<Pick<Keyframe<T>, "t" | "s">>): A
   return keyframed(sorted);
 }
 
-export function keyframeRange<T>(startFrame: number, values: T[]): Animatable<T> {
-  return makeKeyframes(values.map((value, index) => ({ t: startFrame + index, s: value })));
+export function keyframeRange<T>(startFrame: number, values: T[], frameStep = 1): Animatable<T> {
+  return makeKeyframes(values.map((value, index) => ({ t: startFrame + index * frameStep, s: value })));
 }
 
-export function scalarKeyframeRange(startFrame: number, values: LottieScalar[]): Animatable<LottieScalar> {
-  return keyframeRange(startFrame, values);
+export function scalarKeyframeRange(startFrame: number, values: LottieScalar[], frameStep = 1): Animatable<LottieScalar> {
+  return keyframeRange(startFrame, values, frameStep);
 }
 
 export function sampleSvgPath(d: string, frameCount: number): Vec2[] {
@@ -39,7 +39,7 @@ export function positionKeyframesAlongPath(d: string, startFrame: number, endFra
   return keyframeRange(startFrame, points);
 }
 
-export function rotationKeyframesAlongPoints(points: Vec2[], startFrame: number, adjustmentDegrees = 0): Animatable<LottieScalar> {
+export function rotationKeyframesAlongPoints(points: Vec2[], startFrame: number, adjustmentDegrees = 0, frameStep = 1): Animatable<LottieScalar> {
   const rotations = points.map((point, index) => {
     const next = points[Math.min(index + 1, points.length - 1)];
     const previous = points[Math.max(index - 1, 0)];
@@ -48,5 +48,5 @@ export function rotationKeyframesAlongPoints(points: Vec2[], startFrame: number,
     return (Math.atan2(dy, dx) * 180) / Math.PI + adjustmentDegrees;
   });
 
-  return scalarKeyframeRange(startFrame, rotations);
+  return scalarKeyframeRange(startFrame, rotations, frameStep);
 }

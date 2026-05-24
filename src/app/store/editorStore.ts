@@ -14,6 +14,8 @@ interface EditorState {
   dirty: boolean;
   setAnimation: (animation: LottieAnimation) => void;
   appendLayers: (layers: ShapeLayer[]) => void;
+  setFrameRate: (frameRate: number) => void;
+  setTotalFrames: (totalFrames: number) => void;
   setTool: (tool: Tool) => void;
   selectLayer: (id: number | null) => void;
   setPlayhead: (frame: number) => void;
@@ -51,6 +53,24 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         animation: { ...state.animation, layers: [...nextLayers, ...state.animation.layers] },
         selectedLayerId: nextLayers[0]?.ind ?? state.selectedLayerId,
         tool: "select",
+        dirty: true,
+      };
+    }),
+  setFrameRate: (frameRate) =>
+    set((state) => ({
+      animation: { ...state.animation, fr: clampNumber(frameRate, 1, 120) },
+      dirty: true,
+    })),
+  setTotalFrames: (totalFrames) =>
+    set((state) => {
+      const nextOutPoint = clampNumber(Math.round(totalFrames), 1, 10000);
+      return {
+        animation: {
+          ...state.animation,
+          op: nextOutPoint,
+          layers: state.animation.layers.map((layer) => ({ ...layer, op: nextOutPoint })),
+        },
+        playhead: Math.min(state.playhead, nextOutPoint - 1),
         dirty: true,
       };
     }),
@@ -161,4 +181,9 @@ function updateSelectedLayer(
     return nextLayer;
   });
   return { animation: { ...state.animation, layers }, dirty: true };
+}
+
+function clampNumber(value: number, min: number, max: number): number {
+  if (!Number.isFinite(value)) return min;
+  return Math.max(min, Math.min(max, value));
 }

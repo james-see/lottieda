@@ -181,5 +181,5 @@ export function renumberLayers(animation: LottieAnimation): LottieAnimation {
 }
 
 export function createDefaultAnimation(): LottieAnimation {
-  return new LottieBuilder(800, 600, 60, 120, "Untitled Lottie").build();
+  return new LottieBuilder(800, 600, 30, 120, "Untitled Lottie").build();
 }

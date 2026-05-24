@@ -17,6 +17,10 @@ export function Toolbar() {
   const setPlaying = useEditorStore((state) => state.setPlaying);
   const playhead = useEditorStore((state) => state.playhead);
   const setPlayhead = useEditorStore((state) => state.setPlayhead);
+  const frameRate = useEditorStore((state) => state.animation.fr);
+  const totalFrames = useEditorStore((state) => state.animation.op);
+  const setFrameRate = useEditorStore((state) => state.setFrameRate);
+  const setTotalFrames = useEditorStore((state) => state.setTotalFrames);
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
@@ -49,12 +53,34 @@ export function Toolbar() {
         ))}
       </div>
       <div className="flex items-center gap-2">
+        <label className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-zinc-500">
+          FPS
+          <input
+            className="w-14 rounded border border-zinc-800 bg-zinc-900 px-1.5 py-1 font-mono text-xs text-zinc-200"
+            max={120}
+            min={1}
+            onChange={(event) => setFrameRate(Number(event.target.value))}
+            type="number"
+            value={frameRate}
+          />
+        </label>
+        <label className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-zinc-500">
+          Frames
+          <input
+            className="w-20 rounded border border-zinc-800 bg-zinc-900 px-1.5 py-1 font-mono text-xs text-zinc-200"
+            max={10000}
+            min={1}
+            onChange={(event) => setTotalFrames(Number(event.target.value))}
+            type="number"
+            value={totalFrames}
+          />
+        </label>
         <button className="rounded bg-zinc-900 px-3 py-1.5 text-xs text-zinc-200 hover:bg-zinc-800" onClick={() => setPlaying(!isPlaying)} type="button">
           {isPlaying ? "Pause" : "Play"}
         </button>
         <input
           className="w-52 accent-orange-500"
-          max={useEditorStore.getState().animation.op - 1}
+          max={totalFrames - 1}
           min={0}
           onChange={(event) => setPlayhead(Number(event.target.value))}
           type="range"

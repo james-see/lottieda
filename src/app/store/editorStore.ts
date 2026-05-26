@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createDefaultAnimation, createEllipse, createFill, createPath, createRect, createShapeLayer, createStroke, setStatic } from "../../engine/builder";
 import { sampleProperty, withKeyframe } from "../../engine/keyframes";
+import { applyMotionPresetToLayer, type MotionPresetOptions } from "../../engine/motionPresets";
 import type { LottieAnimation, LottieLayer, LottiePath, Rgba, ShapeLayer, Vec2 } from "../../engine/schema";
 
 export type Tool = "select" | "rect" | "ellipse" | "path" | "text";
@@ -28,6 +29,7 @@ interface EditorState {
   updateSelectedPosition: (position: Vec2, keyframe: boolean) => void;
   updateSelectedRotation: (rotation: number, keyframe: boolean) => void;
   updateSelectedScale: (scale: Vec2, keyframe: boolean) => void;
+  applyAnimationPreset: (presetId: string, options?: MotionPresetOptions) => boolean;
   keyframeSelectedTransform: (property: "position" | "scale" | "rotation" | "opacity", frame?: number) => void;
   updateSelectedStyle: (style: Partial<{ fill: Rgba; stroke: Rgba; strokeWidth: number }>) => void;
   toggleLayerHidden: (id: number) => void;
@@ -106,6 +108,19 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     set((state) => updateSelectedLayer(state, (layer) => {
       layer.ks.s = keyframe ? withKeyframe(layer.ks.s, state.playhead, scale, "ease-in-out") : setStatic(layer.ks.s, scale);
     })),
+  applyAnimationPreset: (presetId, options) => {
+    let applied = false;
+    set((state) => {
+      const result = updateSelectedLayer(state, (layer) => {
+        applied = applyMotionPresetToLayer(layer, state.animation, presetId, {
+          startFrame: state.playhead,
+          ...options,
+        });
+      });
+      return applied ? result : state;
+    });
+    return applied;
+  },
   keyframeSelectedTransform: (property, frame) =>
     set((state) => updateSelectedLayer(state, (layer) => {
       const targetFrame = frame ?? state.playhead;

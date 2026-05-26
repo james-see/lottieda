@@ -1,6 +1,6 @@
 [package]
 name = "lottieda"
-version = "0.1.4"
+version = "0.1.5"
 description = "A native desktop editor for Lottie animations"
 authors = ["LottieDa contributors"]
 edition = "2021"
